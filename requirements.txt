@@ -1,0 +1,11 @@
+Django==1.9.6
+amqp==1.4.9
+anyjson==0.3.3
+billiard==3.3.0.23
+boto==2.40.0
+celery==3.1.23
+kombu==3.0.35
+pytz==2016.4
+redis==2.10.5
+requests==2.10.0
+wsgiref==0.1.2
