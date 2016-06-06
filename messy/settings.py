@@ -131,6 +131,9 @@ CELERYBEAT_SCHEDULE = {
 }
 
 # Messy App Settings
-MESSY_BUCKET = os.environ.get('MESSY_BUCKET')
-MESSY_KEY = os.environ.get('MESSY_KEY')
+MESSY_BUCKET = os.environ.get('MESSY_BUCKET','messystats')
+MESSY_KEY = os.environ.get('MESSY_KEY','messystats_key')
 
+# AWS
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
