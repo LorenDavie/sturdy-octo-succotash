@@ -16,3 +16,12 @@ class Message(models.Model):
     class Meta:
         ordering = ['state','city','create_time']
 
+class MessageStatsURL(models.Model):
+    """ 
+    URL Pointing to stats summary of message info.
+    """
+    updated = models.DateTimeField(auto_now_add=True)
+    url = models.URLField()
+    
+    class Meta:
+        ordering = ['updated']

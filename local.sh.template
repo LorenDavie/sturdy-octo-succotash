@@ -2,9 +2,10 @@
 
 # Environment to run Messy
 
-export MESSY_BUCKET='messystats'
-export MESSY_KEY='messystats_key'
+#export MESSY_BUCKET='messystats'
+#export MESSY_KEY='messystats_key'
 export AWS_ACCESS_KEY_ID=''
 export AWS_SECRET_ACCESS_KEY=''
+#export REDIS_URL=''
 
 ./manage.py $1 $2 $3

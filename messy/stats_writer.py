@@ -10,13 +10,14 @@ from boto.s3.key import Key
 import json
 from django.conf import settings
 from datetime import datetime, timedelta
+from messy.models import MessageStatsURL
 
 stats_url = None
 url_expires = None
 
 def write_stats(city_total,user_total):
     """ 
-    Writes summary stats into S3.
+    Writes the summary stats into S3.
     """
     data = {
         'result':'success',
@@ -25,7 +26,6 @@ def write_stats(city_total,user_total):
     }
     key = _get_key()
     key.set_contents_from_string(json.dumps(data))
-    _refresh_url()
 
 def write_error(error):
     """ 
@@ -37,7 +37,6 @@ def write_error(error):
     }
     key = _get_key()
     key.set_contents_from_string(json.dumps(data))
-    _refresh_url()
 
 def get_url():
     """ 
@@ -45,19 +44,28 @@ def get_url():
     function in this module that may be accessed within an HTTP request/response cycle, 
     e.g. multi-threaded.
     """
-    return stats_url
+    if stats_url and url_expires > datetime.now():
+        return stats_url
+    else:
+        return _get_url()
 
-def _refresh_url():
+def _get_url():
     """ 
-    If the URL is too stale, will refresh it.
+    Regenerates the URL from the database.
     """
     now = datetime.now()
     thirty_days = timedelta(seconds=60 * 60 * 24 * 30) # 30 day url expiry
-    if url_expires is None or now > url_expires:
-        next_expiry = now + thirty_days
+    thirty_days_ago = now - thirty_days
+    stats_url_model = MessageStatsURL.objects.filter(updated__gte=thirty_days_ago).last()
+    if not stats_url_model:
         key = _get_key()
-        stats_url = key.generate_url(thirty_days.seconds)
-        url_expires = next_expiry
+        new_url = key.generate_url(thirty_days.seconds)
+        stats_url_model = MessageStatsURL.objects.create(url=new_url)
+        MessageStatsURL.objects.exclude(pk=stats_url_model.pk).delete() # clean up old url objects in db
+        
+    stats_url = stats_url_model.url
+    stats_expires = stats_url_model.updated + thirty_days
+    return stats_url
 
 def _get_key():
     """ 

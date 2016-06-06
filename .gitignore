@@ -63,3 +63,10 @@ target/
 
 # Local environment shell script
 local.sh
+
+# SQLite
+db.sqlite3
+
+# Celery artifacts
+celerybeat.pid
+celerybeat-schedule.db

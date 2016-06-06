@@ -77,8 +77,8 @@ WSGI_APPLICATION = 'messy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'messy',
     }
 }
 
@@ -121,7 +121,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Celery Task Schedule
+# Celery
 from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
     'stats_updater':{
@@ -129,6 +129,7 @@ CELERYBEAT_SCHEDULE = {
         'schedule':timedelta(minutes=1),
     },
 }
+BROKER_URL = os.environ.get('REDIS_URL','redis://')
 
 # Messy App Settings
 MESSY_BUCKET = os.environ.get('MESSY_BUCKET','messystats')

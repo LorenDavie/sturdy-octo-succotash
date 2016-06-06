@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from messy.views import get_stats
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^stat/get/$',get_stats),
 ]
+
+
