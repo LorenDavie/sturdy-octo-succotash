@@ -10,10 +10,8 @@ from boto.s3.key import Key
 import json
 from django.conf import settings
 from datetime import datetime, timedelta
-from messy.models import MessageStatsURL
-
-stats_url = None
-url_expires = None
+from django.core.cache import cache
+from messy.utils import random_hex
 
 def write_stats(city_total,user_total):
     """ 
@@ -44,28 +42,24 @@ def get_url():
     function in this module that may be accessed within an HTTP request/response cycle, 
     e.g. multi-threaded.
     """
-    if stats_url and url_expires > datetime.now():
-        return stats_url
-    else:
-        return _get_url()
+    key = _get_key()
+    return key.generate_url(300)
 
-def _get_url():
+def write_message(username,city,state,message):
     """ 
-    Regenerates the URL from the database.
+    Writes a message.
     """
-    now = datetime.now()
-    thirty_days = timedelta(seconds=60 * 60 * 24 * 30) # 30 day url expiry
-    thirty_days_ago = now - thirty_days
-    stats_url_model = MessageStatsURL.objects.filter(updated__gte=thirty_days_ago).last()
-    if not stats_url_model:
-        key = _get_key()
-        new_url = key.generate_url(thirty_days.seconds)
-        stats_url_model = MessageStatsURL.objects.create(url=new_url)
-        MessageStatsURL.objects.exclude(pk=stats_url_model.pk).delete() # clean up old url objects in db
-        
-    stats_url = stats_url_model.url
-    stats_expires = stats_url_model.updated + thirty_days
-    return stats_url
+    from messy.tasks import write_message as wm_job # this is here to avoid a circular import
+    
+    msg_key = random_hex()
+    data = {
+        'username':username,
+        'city':city,
+        'state':state,
+        'message':message
+    }
+    cache.set(msg_key,json.dumps(data),1200)
+    wm_job.delay(msg_key) # async message write
 
 def _get_key():
     """ 

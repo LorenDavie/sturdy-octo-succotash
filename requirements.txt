@@ -6,7 +6,9 @@ boto==2.40.0
 celery==3.1.23
 kombu==3.0.35
 psycopg2==2.6.1
+python-memcached==1.58
 pytz==2016.4
 redis==2.10.5
 requests==2.10.0
+six==1.10.0
 wsgiref==0.1.2
